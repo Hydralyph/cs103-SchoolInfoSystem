@@ -1,0 +1,35 @@
+//requres library headers cmath, algortihm and string
+
+
+struct Date
+{
+	unsigned int day, month, year; //integers representing the day, month and year
+	string fullDate, dayName; //the full date represented in dd/mm/yyyy format, and the day of the week
+
+private: //some constants
+	int monthLength[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+	string days[7] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+
+	Date(int d = 1, int m = 1, int y = 2000) //constructor
+	{
+		y = max(y, 1); //ensures that the year is greater than one
+		monthLength[1] = (y % 4 == 0) ? 29 : 28; //changes the length of february if the date is in a leap year
+		m = min(max(m, 1), 12);// sets the month between 1 and 12
+		d = min(max(d, 1), monthLength[m - 1]); //sets the day betweeen 1 and the max length of the month
+		fullDate = d + "/";
+		fullDate += m + "/"; // writes out the date in dd/mm/yyyy format
+		fullDate += y;
+		day = d;
+		month = m;
+		year = y;
+
+		int dayNo = 0; //calculates what day of the year it is
+		for (int i = 0; i < m - 1; i++)
+		{
+			dayNo += monthLength[i];
+		}
+		dayNo += day; 
+		
+		dayName = days[(int)floor(dayNo / 7) + dayNo % 7];  //most likley inaccurate as it assumes that every year starts on a monday, however will be good enough for us
+	}
+};
