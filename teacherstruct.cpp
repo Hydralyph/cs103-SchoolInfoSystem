@@ -19,8 +19,8 @@ struct Date
 		monthLength[1] = (y % 4 == 0) ? 29 : 28;
 		m = min(max(m, 1), 12);
 		d = min(max(d, 1), monthLength[m - 1]);
-		fullDate = d + "/";
-		fullDate += m + "/";
+		fullDate = (d > 9) ? d + "/" : (string)("0" + d) + "/";
+		fullDate += (m > 9) ? m + "/" : (string)("0" + m) + "/";
 		fullDate += y;
 		day = d;
 		month = m;
@@ -84,7 +84,7 @@ struct Date
 
 private:
 	int monthLength[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-	std::string days[7] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+	string days[7] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
 };
 
 struct Teacher {
@@ -111,11 +111,17 @@ struct Teacher {
 		this->ptr[1] = nullptr;
 	}
 
+	Teacher()
+	{
+		this->firstName = "NULL";
+	}
+
 	void DisplayInfo()
 	{
-		cout << "\nInformation for teacher " << lastName << ", " << firstName << " " << middleName << endl;
+		cout << "Information for teacher " << lastName << ", " << firstName << " " << middleName << endl;
 		cout << "Age: " << age << "\nDate of birth: " << dob.fullDate << "\nGender: " << gender << "\nContact Phone: " << contactNo << "\nEmail Address: " << email << "\nYear Taught: " 
-			<< yrTaught << "\nClassroom number: " << classNo << endl;
+			<< yrTaught << "\nClassroom number: " << classNo << endl << endl;
+		cout << "prev: " << ptr[0] << " next: " << ptr[1] << endl;
 	}
 };
 
@@ -154,11 +160,11 @@ Teacher RegisterNewTeacher(Teacher *first)
 	ofstream teacherFile("teachers.txt", ios::app);
 
 	teacherFile << str[0] << endl << str[1] << endl << str[2] << endl << str[3] << endl << str[4] << endl << age << endl << date.fullDate << endl << str[5] << endl << str[6] << endl
-		<< str[7] << endl << yrTaught << endl << classNo << endl;
+		<< str[7] << endl << yrTaught << endl << classNo << endl << endl;
 
 	teacherFile.close();
 
-	Teacher rtrn = Teacher(str, age, yrTaught, classNo, dob);
+	Teacher* rtrn = new Teacher(str, age, yrTaught, classNo, dob);
 
 	if (first != nullptr)
 	{
@@ -167,10 +173,10 @@ Teacher RegisterNewTeacher(Teacher *first)
 			first = first->ptr[1];
 		}
 
-		rtrn.ptr[0] = first;
-		first->ptr[1] = &rtrn;
+		rtrn->ptr[0] = first;
+		first->ptr[1] = rtrn;
 	}
-	return rtrn;
+	return *rtrn;
 }
 
 Teacher* FetchTeachers()
@@ -203,36 +209,96 @@ Teacher* FetchTeachers()
 		getline(teacherFile, temp);//moving down line in file
 		getline(teacherFile, temp);//moving down line in file
 
-		Teacher teach = Teacher(str, age, yrTaught, classNo, dob);
-		teach.DisplayInfo();
+		Teacher* teach = new Teacher(str, age, yrTaught, classNo, dob);
+		//teach->DisplayInfo();
 
 		if (prev != nullptr)
 		{
-			prev->ptr[1] = &teach;
-			teach.ptr[0] = prev;
+			prev->ptr[1] = teach;
+			teach->ptr[0] = prev;
 		}
-		prev = &teach;
+		prev = teach;
 
 		if (first == nullptr)
 		{
-			first = &teach;
+			first = teach;
 		}
 	}
 
 	return first;
 }
 
-int main()
+Teacher GetTeacherByUsername(Teacher* ll, string username)
 {
+	while (true)
+	{
+		cout << ll->username << endl;
+		if (ll->username == username)
+		{
+			return *ll;
+		}
+		if (ll->ptr[1] == nullptr)
+		{
+			return Teacher();
+		}
+		ll = ll->ptr[1];
+	}
+}
+
+int main()
+{ 
 	Teacher* teacherLinkedList = FetchTeachers();
-	Teacher teach = RegisterNewTeacher(teacherLinkedList);
-	
-	teach.DisplayInfo();
+
+	string input;
+
+	cout << "please enter your username: ";
+	getline(cin, input);
+
+	Teacher teach;
+
+	try
+	{
+		teach = GetTeacherByUsername(teacherLinkedList, input);
+		if (teach.firstName == "NULL")
+		{
+			throw (string)("username not found");
+		}
+	}
+	catch (string error)
+	{
+		cout << error << endl;
+	}
+
+	for (int attempts = 3; attempts >= 0; attempts--)
+	{
+		try
+		{
+			cout << "(attempts remaining: " << attempts << ") please enter your password: ";
+			getline(cin, input);
+			if (input == teach.password)
+			{
+				cout << "\nYou have now logged in as " << teach.username;
+				break;
+			}
+			else
+			{
+				throw (string)"your password was incorrect";
+			}
+		}
+		catch (string error)
+		{
+			cout << error << endl;
+		}
+		if (attempts == 0)
+		{
+			teach = Teacher();
+		}
+	}
 
 	return 0;
 }
 
-int GetIntInput(int min, int max)
+int GetIntInput(int min, int max) //default variables are declared with the function at the top of the program
 {
 	int rtrn;
 	while (true)
