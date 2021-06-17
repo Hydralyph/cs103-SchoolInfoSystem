@@ -1,0 +1,19 @@
+-------------------------------------------------------
+|       Emerald Hill High School Event Details        |
+-------------------------------------------------------
+
+[Recent]
+------------------
+Title: Athletics Day
+Date: 23/05/21
+Description: A fun filled day for students to compete in sports and other activities.
+------------------
+Title: E Factor
+Date: 12/05/21
+Description: A fun filled day with performances by other students competing in a very original contest.
+
+[Upcoming]
+------------------
+Title: Year 11 Camp
+Date: 01/12/21 - 05/12/21
+Description: A great opportunity for students to forge bonds with others.
