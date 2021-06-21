@@ -1,13 +1,11 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-<<<<<<< HEAD
 #include <sstream>
 #include <Windows.h>
 #include <vector>
-=======
 #include <Windows.h>
->>>>>>> origin/indev
+
 
 using namespace std;
 
@@ -184,7 +182,6 @@ void TeacherAccountManagement(); //Freddie Rive
 
 int main()
 {
-<<<<<<< HEAD
 
 	// Jesse Simpson - Start
 	int option; // Stores the user's option.
@@ -540,7 +537,7 @@ void TeacherAccountManagement()
 		}
 	}
 }
-=======
+
     // Jesse Simpson - Start
     int option; // Stores the user's option.
     ifstream inputDetails; // File identifier for reading purposes
@@ -605,4 +602,4 @@ void TeacherAccountManagement()
 
         return 0;
  }
->>>>>>> origin/indev
+
