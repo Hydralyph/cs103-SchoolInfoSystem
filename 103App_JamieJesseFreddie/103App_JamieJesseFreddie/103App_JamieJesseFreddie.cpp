@@ -1,14 +1,64 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <sstream>
 #include <Windows.h>
+#include <vector>
+#include <windows.h>
+
 
 using namespace std;
 
 //-----Structs and Function Prototypes-----
+
+// CODE SECTION - Jamie
+
+void Parent_AccessNotices();    // These two functions are just placeholders and could change return types or arguments
+void Parent_AccessChildRecords();
+
+typedef struct ParentDetails {  // Any records starting with e are for emergency contact info.
+	string username;
+	string password;
+	string firstName;
+	string lastName;
+	string dob;
+	string email;
+	string contactNumber;
+	string eFirstName;
+	string eLastName;
+	string eContactNumber;
+	// Find a way to have student data here, may have to just add more strings
+
+	ParentDetails(string un = "", string pw = "", string fn = "", string ln = "", string db = "", string em = "", string cn = "",
+		string efn = "", string eln = "", string ecn = "") {
+		username = un;
+		password = pw;
+		firstName = fn;
+		lastName = ln;
+		dob = db;
+		email = em;
+		contactNumber = cn;
+		eFirstName = efn;
+		eLastName = eln;
+		eContactNumber = ecn;
+
+	}
+
+} Parent;
+
+typedef struct StudentRecords { // Jamie - Placeholder Student Struct, just for testing. Work out a new one with Freddie.
+	string firstName;
+	string lastName;
+	vector<string> Classes;
+
+
+} Student;
+
+// CODE SECTION - End
+
 struct Date //Freddie Rive
 {
-	unsigned int day, month, year; 
+	unsigned int day, month, year;
 	string fullDate, dayName;
 
 	Date(int d = 1, int m = 1, int y = 2021) //constructor that takes 3 ints
@@ -82,14 +132,12 @@ private:
 
 struct Teacher //Freddie Rive
 {
-	string firstName, middleName, lastName, gender, email, username, password, contactNo; 
+	string firstName, middleName, lastName, gender, email, contactNo;
 	int age, yrTaught, classNo;
 	Date dob;
 
 	Teacher(string* str, int a, int tght, int clss, Date d)
 	{
-		this->username = *(str);
-		this->password = *(str + 1);
 		this->firstName = *(str + 2);
 		this->middleName = *(str + 3);
 		this->lastName = *(str + 4);
@@ -104,7 +152,7 @@ struct Teacher //Freddie Rive
 
 	Teacher() //default constructor; make sure you check firstname when making a new teacher struct
 	{
-		this->username = "NULL";
+		this->firstName = "NULL";
 	}
 
 	void DisplayInfo(int index = 0)
@@ -122,83 +170,161 @@ struct Teacher //Freddie Rive
 	}
 };
 
+enum accessLevels { defaultUser, parentKey, teacherKey, adminKey };
+enum subjects { maths, science, english, sports, arts, behaviour };
+
+struct Account
+{
+	struct AccountType 
+	{
+		Teacher teacher;
+		Parent parent;
+	} type;
+	string username, password;
+	int accessLevel;
+
+	Account(string* str, Teacher* teach) //constructor for teacher account
+	{
+		this->username = *str;
+		this->password = *(str + 1);
+		this->type.teacher = *teach;
+		this->accessLevel = teacherKey;
+	}
+
+	Account(string* str) //constructor for admin account
+	{
+		this->username = *str;
+		this->password = *(str + 1);
+		this->accessLevel = adminKey;
+	}
+
+	Account()
+	{
+		this->accessLevel = defaultUser;
+	}
+};
+
 int GetIntInput(int min = -2147483647, int max = 2147483647); //Freddie Rive
 string GetNewPassword(); //Freddie Rive
-Teacher LogInAsTeacher(); //Freddie Rive
-void TeacherAccountManagement(); //Freddie Rive
+Account LogInAsTeacher(); //Freddie Rive
+Account TeacherAccountManagement(Account user); //Freddie Rive
+Account AdminManagement(Account user); //Freddie Rive
 
 //-----------------------------------------
 
 int main()
 {
-    // Jesse Simpson - Start
-    int option; // Stores the user's option.
-    ifstream inputDetails; // File identifier for reading purposes
-    string str; // For storing getline data from the inputDetails file
-    
-    // Operates while the User has not exited. Not final, and is subject to change based on other functions/screens.
-    do {
-        // Output menu
-        cout << "-------------------------------------------------------" << endl;
-        cout << "|     Emerald Hill High School Information System     |" << endl;
-        cout << "-------------------------------------------------------" << endl;
-        cout << "\n1. Contact Details";
-        cout << "\n2. Events";
-        cout << "\n3. Term Dates";
-        cout << "\n4. Account Settings" << endl;
-        cout << "\n5. Exit" << endl;
-        cout << "\n[Enter your option:] ";
-        
-		option = GetIntInput(1, 5); // User Input for Menu Selection
-        
-        cout << "\n"; // New line so it doesn't look too close together, helping with readability
 
-        // Menu options switch case. Account Settings does not work at this time, as I am waiting on the Login screen stuff to get underway.
-        // Options 1-3 all do the same basic operation of reading from an existing txt file. Said txt file plans to be modifiable by an Admin.
-        // Sleep only works on windows at this time.
-        switch (option) {
-        case 1:
-            inputDetails.open("contactDetails.txt", ios::in);
-            while (getline(inputDetails, str)) {
-                cout << str << endl;
-            }
-            cout << "\n";
-            inputDetails.close();
-            Sleep(1500);
-            break;
-        case 2:
-            inputDetails.open("eventDetails.txt", ios::in);
-            while (getline(inputDetails, str)) {
-                cout << str << endl;
-            }
-            cout << "\n";
-            inputDetails.close();
-            Sleep(1500);
-            break;
-        case 3:
-            inputDetails.open("termDetails.txt", ios::in);
-            while (getline(inputDetails, str)) {
-                cout << str << endl;
-            }
-            cout << "\n";
-            inputDetails.close();
-            Sleep(1500);
-            break;
-		case 4:
-			TeacherAccountManagement();
-			system("CLS");
+	// Jesse Simpson - Start
+	int option; // Stores the user's option.
+	ifstream inputDetails; // File identifier for reading purposes
+	string str; // For storing getline data from the inputDetails file
+	Account user = Account();
+
+	// Operates while the User has not exited. Not final, and is subject to change based on other functions/screens.
+	do {
+		// Output menu
+		cout << "-------------------------------------------------------" << endl;
+		cout << "|     Emerald Hill High School Information System     |" << endl;
+		cout << "-------------------------------------------------------" << endl;
+		cout << "\n1. Contact Details";
+		cout << "\n2. Events";
+		cout << "\n3. Term Dates";
+		cout << "\n4. Account Settings" << endl;
+		cout << "\n5. Exit" << endl;
+		cout << "\n[Enter your option:] ";
+
+		cin >> option; // User Input for Menu Selection
+
+		cout << "\n"; // New line so it doesn't look too close together, helping with readability
+
+		// Menu options switch case. Account Settings does not work at this time, as I am waiting on the Login screen stuff to get underway.
+		// Options 1-3 all do the same basic operation of reading from an existing txt file. Said txt file plans to be modifiable by an Admin.
+		// Sleep only works on windows at this time.
+		switch (option) {
+		case 1:
+			inputDetails.open("contactDetails.txt", ios::in);
+			while (getline(inputDetails, str)) {
+				cout << str << endl;
+			}
+			cout << "\n";
+			inputDetails.close();
+			Sleep(1500);
 			break;
-        default: // Explaining that the user has inputted the incorrect number, clears screen before showing menu again. Only works on Windows.
-            cout << "What you entered does not match the menu options listed, please try again." << endl;
-            Sleep(1500);
-            system("CLS");
-        }
-        } while (option != 5);
+		case 2:
+			inputDetails.open("eventDetails.txt", ios::in);
+			while (getline(inputDetails, str)) {
+				cout << str << endl;
+			}
+			cout << "\n";
+			inputDetails.close();
+			Sleep(1500);
+			break;
+		case 3:
+			inputDetails.open("termDetails.txt", ios::in);
+			while (getline(inputDetails, str)) {
+				cout << str << endl;
+			}
+			cout << "\n";
+			inputDetails.close();
+			Sleep(1500);
+			break;
+		case 4:
+			cout << "\nWhich account do you want to log into:\n1. Parent\n2. Teacher\n3. Admin\n\n4. Return to previous menu\n\n[Enter your option]: ";
+			option = GetIntInput(1, 4);
+			switch (option)
+			{
+			case 1:
+				//parent stuff parent stuff
+				break;
+			case 2:
+				user = TeacherAccountManagement(user);
+				break;
+			case 3:
+				AdminManagement(user);
+				break;
+			default:
+				break;
+			}
+			break;
+		default: // Explaining that the user has inputted the incorrect number, clears screen before showing menu again. Only works on Windows.
+			cout << "What you entered does not match the menu options listed, please try again." << endl;
+			Sleep(1500);
+			system("CLS");
+		}
+	} while (option != 5);
 
-        // Jesse Simpson - End
+	// Jesse Simpson - End
 
-        return 0;
- }
+	return 0;
+}
+
+
+// CODE SECTION - Jamie
+
+#pragma region ParentScreen
+
+void Parent_AccessNotices() {
+	string line;
+
+	fstream fs;
+
+	fs.open("data/notices.txt", ios::in);
+
+	while (getline(fs, line)) {
+		cout << line << endl;
+	}
+
+	fs.close();
+}
+
+void Parent_AccessChildRecords() {
+
+}
+
+#pragma endregion
+
+// CODE SECTION - End
 
 //----------------------------------Generic-Functions-------------------------------------//
 
@@ -261,10 +387,10 @@ string GetNewPassword()
 }
 
 //-------------------------------Teacher-Functions------------------------------//
-Teacher RegisterNewTeacher()
+Account RegisterNewTeacher()
 {
 	string str[8], dateStr;
-	int age, contactNo, yrTaught, classNo;
+	int age, yrTaught, classNo;
 	Date dob;
 
 	cout << "\nPlease enter your new username: ";
@@ -293,21 +419,23 @@ Teacher RegisterNewTeacher()
 	cout << "\nPlease enter your classroom number: ";
 	classNo = GetIntInput(0);
 
-	ofstream teacherFile("teachers.csv", ios::app);
+	ofstream teacherFile("data/teachers.csv", ios::app);
 
 	teacherFile << str[0] << ',' << str[1] << ',' << str[2] << ',' << str[3] << ',' << str[4] << ',' << str[5] << ',' << str[6] << ',' << str[7] << ',' << age << ','
 		<< dob.fullDate << ',' << yrTaught << ',' << classNo << '\n';
 
 	teacherFile.close();
 
-	Teacher rtrn = Teacher(str, age, yrTaught, classNo, dob);
+	Teacher teach = Teacher(str, age, yrTaught, classNo, dob);
+
+	Account rtrn = Account(str, &teach);
 
 	return rtrn;
 }
 
 void FetchTeachers()
 {
-	ifstream teacherFile("teachers.csv", ios::in);
+	ifstream teacherFile("data/teachers.csv", ios::in);
 	int index = 1;
 	while (teacherFile.peek() != -1)
 	{
@@ -341,10 +469,10 @@ void FetchTeachers()
 
 Teacher FetchTeacher(int index)
 {
-	ifstream teacherFile("teachers.csv", ios::in);
+	ifstream teacherFile("data/teachers.csv", ios::in);
 
 	string str[8], temp;
-	int age, contactNo, yrTaught, classNo;
+	int age, yrTaught, classNo;
 	Date dob;
 
 	for (int i = 0; i < index; i++)
@@ -373,9 +501,9 @@ Teacher FetchTeacher(int index)
 	return Teacher(str, age, yrTaught, classNo, dob);
 }
 
-Teacher GetTeacherByUsername(string username)
+Teacher GetTeacherByUsername(string username, string* login)
 {
-	ifstream teacherFile("teachers.csv", ios::in);
+	ifstream teacherFile("data/teachers.csv", ios::in);
 	string fileName;
 	int index = 0;
 	while (teacherFile.peek() != -1)
@@ -383,6 +511,9 @@ Teacher GetTeacherByUsername(string username)
 		getline(teacherFile, fileName, ',');
 		if (fileName == username)
 		{
+			*login = fileName;
+			getline(teacherFile, fileName, ',');
+			*(login + 1) = fileName;
 			teacherFile.close();
 			return FetchTeacher(index);
 		}
@@ -393,17 +524,19 @@ Teacher GetTeacherByUsername(string username)
 	return Teacher();
 }
 
-Teacher LogInAsTeacher()
+Account LogInAsTeacher()
 {
 	string input;
 	Teacher teacher;
+	Account rtrn;
+	string loginDetails[2];
 	try
 	{
 		cout << "\nPlease enter your username: ";
 		getline(cin, input);
 
-		teacher = GetTeacherByUsername(input);
-		if (teacher.username == "NULL")
+		teacher = GetTeacherByUsername(input, loginDetails);
+		if (teacher.firstName == "NULL")
 		{
 			throw (string)"\nUsername not found.";
 		}
@@ -412,9 +545,10 @@ Teacher LogInAsTeacher()
 		{
 			cout << "\n(Attempts remaining: " << attempts << ") Please enter your password: ";
 			getline(cin, input);
-			if (input == teacher.password)
+			if (input == loginDetails[1])
 			{
-				cout << "\nYou have now logged in as " << teacher.username << endl;
+				cout << "\nYou have now logged in as " << teacher.firstName << " " << teacher.lastName << endl;
+				rtrn = Account(loginDetails, &teacher);
 				break;
 			}
 			else
@@ -428,37 +562,172 @@ Teacher LogInAsTeacher()
 		cout << endl << error << endl;
 	}
 
-	teacher.DisplayInfo();
-	Sleep(15000);
-	return teacher;
+	Sleep(1500);
+	return rtrn;
 }
 
-void TeacherAccountManagement()
+Account TeacherAccountManagement(Account user)
 {
 	while (true)
 	{
-		int option = 0;
-		system("CLS");
-		cout << "-------------------------------------------------------" << endl;
-		cout << "|     Emerald Hill High School Information System     |" << endl;
-		cout << "|              Teacher Log In / Register              |" << endl;
-		cout << "-------------------------------------------------------" << endl;
-		cout << "\n1. Log into an existing account\n2. Register a new account\n3. Return to Main Menu\n[Enter your option] ";
-		option = GetIntInput(1, 4);
-		switch (option)
+		if (user.accessLevel >= teacherKey)
 		{
-		case 1:
-			LogInAsTeacher();
-			break;
-		case 2:
-			RegisterNewTeacher();
-			break;
-		case 3:
-			return;
-		case 4:
-			FetchTeachers();
-			Sleep(15000);
-			break;
+			int option = 0;
+			system("CLS");
+			cout << "-------------------------------------------------------" << endl;
+			cout << "|     Emerald Hill High School Information System     |" << endl;
+			cout << "|          Teacher Student Record Management          |" << endl;
+			cout << "-------------------------------------------------------" << endl;
+			cout << "\n1. View Student Record\n2. Edit student record\n3. View class report\n4. Log out\n5. Return to main menu\n[Enter your option]: ";
+			option = GetIntInput(1, 5);
+			switch (option)
+			{
+			case 1:
+				cout << "cant do this yet";
+				Sleep(1500);
+				break;
+			case 2:
+				cout << "cant do this yet";
+				Sleep(1500);
+				break;
+			case 3:
+				cout << "cant do this yet";
+				Sleep(1500);
+				break;
+			case 4:
+				user = Account();
+				cout << "\nYou have been logged out.";
+				Sleep(1500);
+				break;
+			case 5:
+				system("CLS");
+				return user;
+			}
+		}
+		else if (user.accessLevel == defaultUser)
+		{
+			int option = 0;
+			system("CLS");
+			cout << "-------------------------------------------------------" << endl;
+			cout << "|     Emerald Hill High School Information System     |" << endl;
+			cout << "|              Teacher Log In / Register              |" << endl;
+			cout << "-------------------------------------------------------" << endl;
+			cout << "\n1. Log into an existing account\n2. Register a new account\n3. Return to Main Menu\n[Enter your option]: ";
+			option = GetIntInput(1, 4);
+			switch (option)
+			{
+			case 1:
+				user = LogInAsTeacher();
+				break;
+			case 2:
+				user = RegisterNewTeacher();
+				break;
+			case 3:
+				system("CLS");
+				return user;
+			case 4:
+				FetchTeachers();
+				Sleep(15000);
+				break;
+			}
+		}
+		else
+		{
+			system("CLS");
+			cout << "Please log out of your current account before attempting to log in as a teacher";
+			Sleep(1500);
+			return user;
 		}
 	}
 }
+
+//-------------------Admin-Functions----------------------
+void ChangeAdminPassword()
+{
+	string input, password;
+	ifstream adminFile("data/admin.txt", ios::in);
+
+	getline(adminFile, password);
+
+	adminFile.close();
+
+	cout << "Please enter the current admin password before attempting to change it: ";
+	getline(cin, input);
+	if (input != password)
+	{
+		cout << "Sorry, you entered the wrong password. You cannot change the password.";
+		Sleep(1500);
+		return;
+	}
+
+	cout << "Please enter your new password: ";
+	getline(cin, input);
+
+	ofstream adminFile2("data/admin.txt", ios::trunc);
+
+	adminFile2 << input;
+
+	adminFile2.close();
+
+	return;
+}
+
+Account LogInAsAdmin()
+{
+	ifstream adminFile("data/admin.txt", ios::in);
+	string input, login[2] = { "admin", "null" };
+	
+	getline(adminFile, login[1]);
+
+	cout << "\nPlease enter the admin password: ";
+	getline(cin, input);
+
+	if (input == login[1])
+	{
+		cout << "\nYou have now logged in as the Admin";
+		Sleep(1500);
+		return Account(login);
+	}
+	return Account();
+}
+
+Account AdminManagement(Account user)
+{
+	while (true)
+	{
+		if (user.accessLevel == adminKey)
+		{
+			cout << "wwwwwww";
+			Sleep(1500);
+			system("CLS");
+			return user;
+		}
+		else if (user.accessLevel == defaultUser)
+		{
+			int option = 0;
+			system("CLS");
+			cout << "-------------------------------------------------------" << endl;
+			cout << "|     Emerald Hill High School Information System     |" << endl;
+			cout << "|                     Admin Log In                    |" << endl;
+			cout << "-------------------------------------------------------" << endl;
+			cout << "\n1. Log in\n\n2. Return to Main Menu\n[Enter your option]: ";
+			option = GetIntInput(1, 3);
+			switch (option)
+			{
+			case 1:
+				user = LogInAsAdmin();
+				break;
+			case 2:
+				system("CLS");
+				return user;
+			case 3:
+				ChangeAdminPassword();
+			}
+		}
+		else
+		{
+
+		}
+	}
+}
+
