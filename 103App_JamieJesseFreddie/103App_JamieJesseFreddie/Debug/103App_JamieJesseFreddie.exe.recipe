@@ -2,7 +2,11 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
+<<<<<<< HEAD
       <FullPath>C:\Users\270116757\OneDrive - UP Education\Documents\GroupProject\cs103-SchoolInfoSystem\103App_JamieJesseFreddie\Debug\103App_JamieJesseFreddie.exe</FullPath>
+=======
+      <FullPath>C:\Users\270030185\OneDrive - UP Education\Desktop\Cloned Repo\cs103-SchoolInfoSystem\103App_JamieJesseFreddie\Debug\103App_JamieJesseFreddie.exe</FullPath>
+>>>>>>> origin/indev
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />
