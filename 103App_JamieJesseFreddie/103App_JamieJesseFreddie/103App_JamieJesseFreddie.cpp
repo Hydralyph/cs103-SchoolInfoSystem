@@ -6,56 +6,9 @@
 #include <vector>
 #include <windows.h>
 
-
 using namespace std;
 
 //-----Structs and Function Prototypes-----
-
-// CODE SECTION - Jamie
-
-void Parent_AccessNotices();    // These two functions are just placeholders and could change return types or arguments
-void Parent_AccessChildRecords();
-
-typedef struct ParentDetails {  // Any records starting with e are for emergency contact info.
-	string username;
-	string password;
-	string firstName;
-	string lastName;
-	string dob;
-	string email;
-	string contactNumber;
-	string eFirstName;
-	string eLastName;
-	string eContactNumber;
-	// Find a way to have student data here, may have to just add more strings
-
-	ParentDetails(string un = "", string pw = "", string fn = "", string ln = "", string db = "", string em = "", string cn = "",
-		string efn = "", string eln = "", string ecn = "") {
-		username = un;
-		password = pw;
-		firstName = fn;
-		lastName = ln;
-		dob = db;
-		email = em;
-		contactNumber = cn;
-		eFirstName = efn;
-		eLastName = eln;
-		eContactNumber = ecn;
-
-	}
-
-} Parent;
-
-typedef struct StudentRecords { // Jamie - Placeholder Student Struct, just for testing. Work out a new one with Freddie.
-	string firstName;
-	string lastName;
-	vector<string> Classes;
-
-
-} Student;
-
-// CODE SECTION - End
-
 struct Date //Freddie Rive
 {
 	unsigned int day, month, year;
@@ -130,6 +83,59 @@ private:
 	string days[7] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" }; //names of days
 };
 
+// CODE SECTION - Jamie
+
+void Parent_AccessNotices();    // These two functions are just placeholders and could change return types or arguments
+void Parent_AccessChildRecords();
+
+typedef struct ParentDetails {  // Any records starting with e are for emergency contact info.
+	string firstName;
+	string lastName;
+	Date dob;
+	string email;
+	string contactNumber;
+	string eFirstName;
+	string eLastName;
+	string eContactNumber;
+	// Find a way to have student data here, may have to just add more strings
+
+	ParentDetails(string fn = "", string ln = "", Date db = Date(), string em = "", string cn = "",
+		string efn = "", string eln = "", string ecn = "") {
+		firstName = fn;
+		lastName = ln;
+		dob = db;
+		email = em;
+		contactNumber = cn;
+		eFirstName = efn;
+		eLastName = eln;
+		eContactNumber = ecn;
+	}
+
+	void DisplayInfo(int index = 0)
+	{
+		if (index > 0)
+		{
+			cout << "Information for [arent " << index << " (" << firstName << " " << lastName << ")\n";
+		}
+		else
+		{
+			cout << "Information for teacher " << firstName << " " << lastName << endl;
+		}
+		cout << "Date of birth: " << dob.fullDate << "\Email Address: " << email << "\nContact Phone: " << contactNumber << "\n\nEmergenct Contact : " << eFirstName << " " << eLastName 
+			<< "\nEmergenct Contact Phone Number: " << eContactNumber << endl << endl;
+	}
+} Parent;
+
+typedef struct StudentRecords { // Jamie - Placeholder Student Struct, just for testing. Work out a new one with Freddie.
+	string firstName;
+	string lastName;
+	vector<string> Classes;
+
+
+} Student;
+
+// CODE SECTION - End
+
 struct Teacher //Freddie Rive
 {
 	string firstName, middleName, lastName, gender, email, contactNo;
@@ -191,6 +197,14 @@ struct Account
 		this->accessLevel = teacherKey;
 	}
 
+	Account(string uname, string pword, Parent* prnt) //constructor for parent account
+	{
+		this->username = uname;
+		this->password = pword;
+		this->type.parent = *prnt;
+		this->accessLevel = parentKey;
+	}
+
 	Account(string* str) //constructor for admin account
 	{
 		this->username = *str;
@@ -198,7 +212,7 @@ struct Account
 		this->accessLevel = adminKey;
 	}
 
-	Account()
+	Account() //default user / logged out of account
 	{
 		this->accessLevel = defaultUser;
 	}
@@ -206,9 +220,13 @@ struct Account
 
 int GetIntInput(int min = -2147483647, int max = 2147483647); //Freddie Rive
 string GetNewPassword(); //Freddie Rive
-Account LogInAsTeacher(); //Freddie Rive
+Account ParentAccountManagement(Account user);
 Account TeacherAccountManagement(Account user); //Freddie Rive
 Account AdminManagement(Account user); //Freddie Rive
+void ParentFunctions();
+void TeacherFunctions();
+void AdminFunctions();
+int main();
 
 //-----------------------------------------
 
@@ -224,17 +242,19 @@ int main()
 	// Operates while the User has not exited. Not final, and is subject to change based on other functions/screens.
 	do {
 		// Output menu
+		string accountSettings = (user.accessLevel == defaultUser) ? "Log In / Register" : "Log Out";
 		cout << "-------------------------------------------------------" << endl;
 		cout << "|     Emerald Hill High School Information System     |" << endl;
 		cout << "-------------------------------------------------------" << endl;
 		cout << "\n1. Contact Details";
 		cout << "\n2. Events";
 		cout << "\n3. Term Dates";
-		cout << "\n4. Account Settings" << endl;
-		cout << "\n5. Exit" << endl;
+		cout << "\n4. " << accountSettings;
+		cout << "\n5. View/Edit Records\n";
+		cout << "\n6. Exit" << endl;
 		cout << "\n[Enter your option:] ";
 
-		cin >> option; // User Input for Menu Selection
+		option = GetIntInput(1, 6); // User Input for Menu Selection
 
 		cout << "\n"; // New line so it doesn't look too close together, helping with readability
 
@@ -270,29 +290,63 @@ int main()
 			Sleep(1500);
 			break;
 		case 4:
-			cout << "\nWhich account do you want to log into:\n1. Parent\n2. Teacher\n3. Admin\n\n4. Return to previous menu\n\n[Enter your option]: ";
-			option = GetIntInput(1, 4);
-			switch (option)
+			switch (user.accessLevel)
 			{
-			case 1:
-				//parent stuff parent stuff
+			case defaultUser:
+				cout << "\nWhich account do you want to log into:\n1. Parent\n2. Teacher\n3. Admin\n\n4. Return to previous menu\n\n[Enter your option]: ";
+				option = GetIntInput(1, 4);
+				switch (option)
+				{
+				case 1:
+					user = ParentAccountManagement(user);
+					break;
+				case 2:
+					user = TeacherAccountManagement(user);
+					break;
+				case 3:
+					user = AdminManagement(user);
+					break;
+				default:
+					break;
+				}
 				break;
-			case 2:
+			case parentKey:
+				user = ParentAccountManagement(user);
+				break;
+			case teacherKey:
 				user = TeacherAccountManagement(user);
 				break;
-			case 3:
-				AdminManagement(user);
-				break;
-			default:
+			case adminKey:
+				user = AdminManagement(user);
 				break;
 			}
+			break;
+		case 5:
+			switch (user.accessLevel)
+			{
+			case parentKey:
+				ParentFunctions();
+				break;
+			case teacherKey:
+				TeacherFunctions();
+				break;
+			case adminKey:
+				AdminFunctions();
+				break;
+			default:
+				cout << "\nPlease log in before attempting to access student records\n\n";
+				Sleep(1500);
+				break;
+			}
+			break;
+		case 6:
 			break;
 		default: // Explaining that the user has inputted the incorrect number, clears screen before showing menu again. Only works on Windows.
 			cout << "What you entered does not match the menu options listed, please try again." << endl;
 			Sleep(1500);
 			system("CLS");
 		}
-	} while (option != 5);
+	} while (option != 6);
 
 	// Jesse Simpson - End
 
@@ -320,6 +374,236 @@ void Parent_AccessNotices() {
 
 void Parent_AccessChildRecords() {
 
+}
+
+Account RegisterNewParent()
+{
+	string username, password, firstname, lastname, dateString, email, contactNumber, eFirstName, eLastName, eContactNumber;
+	Date dob;
+
+	cout << "\nPlease enter your new username: ";
+	getline(cin, username);
+	password = GetNewPassword();
+	cout << "\nPlease enter your first name: ";
+	getline(cin, firstname);
+	cout << "\nPlease enter your last name: ";
+	getline(cin, lastname);
+	cout << "\nPlease enter your date of birth (in dd/mm/yyyy format): ";
+	getline(cin, dateString);
+	dob = Date(dateString);
+	cout << "\nPlease enter your email adress: ";
+	getline(cin, email);
+	cout << "\nPlease enter your contact number: ";
+	getline(cin, contactNumber);
+	cout << "\n\nPlease enter your emergency contacts first name: ";
+	getline(cin, eFirstName);
+	cout << "\nPlease enter your emergency contacts last name: ";
+	getline(cin, eLastName);
+	cout << "\nPlease enter your emergency contact's contact number: ";
+	getline(cin, eContactNumber);
+
+	ofstream parentFile("data/parents.csv", ios::app);
+	parentFile << username << "," << password << "," << firstname << "," << lastname << "," << dob.fullDate << "," << email << "," << contactNumber << "," << eFirstName << ","
+	 << eLastName << "," << eContactNumber << "\n";
+	parentFile.close();
+
+	Parent parent = Parent(firstname, lastname, dob, email, contactNumber, eFirstName, eLastName, eContactNumber);
+
+	Account rtrn = Account(username, password, &parent);
+	return rtrn;
+}
+
+Parent FetchParent(int index)
+{
+	ifstream parentFile("data/teachers.csv", ios::in);
+
+	string username, password, firstname, lastname, dateString, email, contactNumber, eFirstName, eLastName, eContactNumber;
+	Date dob;
+
+	for (int i = 0; i < index; i++)
+	{
+		getline(parentFile, username, '\n');
+	}
+
+	getline(parentFile, username, ',');
+	getline(parentFile, password, ',');
+	getline(parentFile, firstname, ',');
+	getline(parentFile, lastname, ',');
+	getline(parentFile, dateString, ',');
+	dob = Date(dateString);
+	getline(parentFile, email, ',');
+	getline(parentFile, contactNumber, ',');
+	getline(parentFile, eFirstName, ',');
+	getline(parentFile, eLastName, ',');
+	getline(parentFile, eContactNumber, ',');
+
+	parentFile.close();
+	return Parent(firstname, lastname, dob, email, contactNumber, eFirstName, eLastName, eContactNumber);
+}
+
+Parent GetParentByUsername(string input, string* password)
+{
+	int index = 0;
+	string username;
+
+	ifstream parentFile("data/parents.csv", ios::in);
+
+	while (parentFile.peek() != -1)
+	{
+		getline(parentFile, username, ',');
+		if (username == input)
+		{
+			getline(parentFile, username, ',');
+			*password = username;
+			parentFile.close();
+			return FetchParent(index);
+		}
+		getline(parentFile, username, '\n');
+		index++;
+	}
+
+	parentFile.close();
+	return Parent();
+}
+
+Account LogInAsParent()
+{
+	string input, username, password;
+	Parent parent;
+	Account rtrn;
+
+	ifstream parentFile("data/parents.csv", ios::in);
+
+	try
+	{
+		cout << "\nPlease enter your username: ";
+		getline(cin, input);
+		parent = GetParentByUsername(input, &password);
+		if (parent.firstName == "")
+		{
+			throw (string)"\nUsername not found in our records";
+		}
+		username = input;
+
+		for (int attempts = 3; attempts > 0; attempts--)
+		{
+			cout << "\n(Attempts remaining: " << attempts << ") Please enter your password: ";
+			getline(cin, input);
+			if (input == password)
+			{
+				cout << "\nYou have now logged in as " << parent.firstName << " " << parent.lastName << endl;
+				rtrn = Account(username, password, &parent);
+				Sleep(1500);
+				break;
+			}
+			else
+			{
+				cout << "\nYour password was incorrect." << endl;
+				if (attempts == 1)
+				{
+					throw (string)"You ran out of attempts to enter the password";
+				}
+			}
+		}
+	}
+	catch (string error)
+	{
+		cout << endl << error << endl;
+	}
+
+	return Account();
+}
+
+Account ParentAccountManagement(Account user)
+{
+	while (true)
+	{
+		if (user.accessLevel == parentKey)
+		{
+			int option = 0;
+			system("CLS");
+			cout << "-------------------------------------------------------" << endl;
+			cout << "|     Emerald Hill High School Information System     |" << endl;
+			cout << "|                    Parent Log Out                   |" << endl;
+			cout << "-------------------------------------------------------" << endl;
+			cout << "\n1. Log out\n\n2. Return to main menu\n[Enter your option]: ";
+			option = GetIntInput(1, 2);
+			switch (option)
+			{
+			case 1:
+				user = Account();
+				cout << "\nYou have been logged out.";
+				Sleep(1500);
+				break;
+			case 2:
+				system("CLS");
+				return user;
+			}
+		}
+		else if (user.accessLevel == defaultUser)
+		{
+			int option = 0;
+			system("CLS");
+			cout << "-------------------------------------------------------" << endl;
+			cout << "|     Emerald Hill High School Information System     |" << endl;
+			cout << "|              Parent Log In / Register               |" << endl;
+			cout << "-------------------------------------------------------" << endl;
+			cout << "\n1. Log into an existing account\n2. Register a new account\n3. Return to Main Menu\n[Enter your option]: ";
+			option = GetIntInput(1, 3);
+			switch (option)
+			{
+			case 1:
+				user = LogInAsParent();
+				break;
+			case 2:
+				user = RegisterNewParent();
+				break;
+			case 3:
+				system("CLS");
+				return user;
+			}
+		}
+		else
+		{
+			system("CLS");
+			cout << "Please log out of your current account before attempting to log in as a parent";
+			Sleep(1500);
+			return user;
+		}
+	}
+}
+
+void ParentFunctions()
+{
+	while (true)
+	{
+		int option = 0;
+		system("CLS");
+		cout << "-------------------------------------------------------" << endl;
+		cout << "|     Emerald Hill High School Information System     |" << endl;
+		cout << "|           Parent Student Record Management          |" << endl;
+		cout << "-------------------------------------------------------" << endl;
+		cout << "\n1. View Student Record\n2. Edit student record\n3. View class report\n\n4. Return to main menu\n[Enter your option]: ";
+		option = GetIntInput(1, 5);
+		switch (option)
+		{
+		case 1:
+			cout << "cant do this yet";
+			Sleep(1500);
+			break;
+		case 2:
+			cout << "cant do this yet";
+			Sleep(1500);
+			break;
+		case 3:
+			cout << "cant do this yet";
+			Sleep(1500);
+			break;
+		case 4:
+			system("CLS");
+			return;
+		}
+	}
 }
 
 #pragma endregion
@@ -554,6 +838,10 @@ Account LogInAsTeacher()
 			else
 			{
 				cout << "\nYour password was incorrect." << endl;
+				if (attempts == 1)
+				{
+					throw (string)"You ran out of attempts to enter the password";
+				}
 			}
 		}
 	}
@@ -576,30 +864,18 @@ Account TeacherAccountManagement(Account user)
 			system("CLS");
 			cout << "-------------------------------------------------------" << endl;
 			cout << "|     Emerald Hill High School Information System     |" << endl;
-			cout << "|          Teacher Student Record Management          |" << endl;
+			cout << "|                   Teacher Log out                   |" << endl;
 			cout << "-------------------------------------------------------" << endl;
-			cout << "\n1. View Student Record\n2. Edit student record\n3. View class report\n4. Log out\n5. Return to main menu\n[Enter your option]: ";
-			option = GetIntInput(1, 5);
+			cout << "\n1. Log out\n\n2. Return to Main Menu\n[Enter your option]: ";
+			option = GetIntInput(1, 2);
 			switch (option)
 			{
 			case 1:
-				cout << "cant do this yet";
+				user = Account();
+				cout << "\nYou have logged out";
 				Sleep(1500);
 				break;
 			case 2:
-				cout << "cant do this yet";
-				Sleep(1500);
-				break;
-			case 3:
-				cout << "cant do this yet";
-				Sleep(1500);
-				break;
-			case 4:
-				user = Account();
-				cout << "\nYou have been logged out.";
-				Sleep(1500);
-				break;
-			case 5:
 				system("CLS");
 				return user;
 			}
@@ -637,6 +913,39 @@ Account TeacherAccountManagement(Account user)
 			cout << "Please log out of your current account before attempting to log in as a teacher";
 			Sleep(1500);
 			return user;
+		}
+	}
+}
+
+void TeacherFunctions()
+{
+	while (true)
+	{
+		int option = 0;
+		system("CLS");
+		cout << "-------------------------------------------------------" << endl;
+		cout << "|     Emerald Hill High School Information System     |" << endl;
+		cout << "|          Teacher Student Record Management          |" << endl;
+		cout << "-------------------------------------------------------" << endl;
+		cout << "\n1. View Student Record\n2. Edit student record\n3. View class report\n\n4. Return to main menu\n[Enter your option]: ";
+		option = GetIntInput(1, 4);
+		switch (option)
+		{
+		case 1:
+			cout << "cant do this yet";
+			Sleep(1500);
+			break;
+		case 2:
+			cout << "cant do this yet";
+			Sleep(1500);
+			break;
+		case 3:
+			cout << "cant do this yet";
+			Sleep(1500);
+			break;
+		case 4:
+			system("CLS");
+			return;
 		}
 	}
 }
@@ -697,10 +1006,26 @@ Account AdminManagement(Account user)
 	{
 		if (user.accessLevel == adminKey)
 		{
-			cout << "wwwwwww";
-			Sleep(1500);
+			int option = 0;
 			system("CLS");
-			return user;
+			cout << "-------------------------------------------------------" << endl;
+			cout << "|     Emerald Hill High School Information System     |" << endl;
+			cout << "|                    Admin Log Out                    |" << endl;
+			cout << "-------------------------------------------------------" << endl;
+			cout << "\n1. Log out\n2. Change Admin Password\n\n3. Return to Main Menu\n[Enter your option]: ";
+			option = GetIntInput(1, 4);
+			switch (option)
+			{
+			case 1:
+				user = Account();
+				break;
+			case 2:
+				ChangeAdminPassword();
+				break;
+			case 3:
+				system("CLS");
+				return user;
+			}
 		}
 		else if (user.accessLevel == defaultUser)
 		{
@@ -711,7 +1036,7 @@ Account AdminManagement(Account user)
 			cout << "|                     Admin Log In                    |" << endl;
 			cout << "-------------------------------------------------------" << endl;
 			cout << "\n1. Log in\n\n2. Return to Main Menu\n[Enter your option]: ";
-			option = GetIntInput(1, 3);
+			option = GetIntInput(1, 2);
 			switch (option)
 			{
 			case 1:
@@ -720,13 +1045,47 @@ Account AdminManagement(Account user)
 			case 2:
 				system("CLS");
 				return user;
-			case 3:
-				ChangeAdminPassword();
 			}
 		}
 		else
 		{
+			system("CLS");
+			cout << "Please log out of your current account before attempting to log in as the admin";
+			Sleep(1500);
+			return user;
+		}
+	}
+}
 
+void AdminFunctions()
+{
+	while (true)
+	{
+		int option = 0;
+		system("CLS");
+		cout << "-------------------------------------------------------" << endl;
+		cout << "|     Emerald Hill High School Information System     |" << endl;
+		cout << "|            Admin School Record Management           |" << endl;
+		cout << "-------------------------------------------------------" << endl;
+		cout << "\n1. View Class Records\n2. View Parent Records\n3. Report of stuggling children\n4. Report of successful children\n\n5. Return to main menu\n\n[Enter your option]: ";
+		option = GetIntInput(1, 5);
+		switch (option)
+		{
+		case 1:
+			cout << "waiting for the student records";
+			break;
+		case 2:
+			cout << "ill do this in a sec";
+			break;
+		case 3:
+			cout << "waiting for the student records";
+			break;
+		case 4:
+			cout << "waiting for the student records";
+			break;
+		case 5:
+			system("CLS");
+			return;
 		}
 	}
 }
