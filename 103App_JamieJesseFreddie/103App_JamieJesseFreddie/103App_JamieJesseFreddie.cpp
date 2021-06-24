@@ -8,6 +8,12 @@
 
 using namespace std;
 
+//these are used to automatically generate students with androgynous first names (found them on a list dont judge me)
+string firstNames[] = { "Bailey", "Cameron", "Harper", "Keegan", "Blake", "Phoenix", "Regan", "Shawn", "Rory", "Ryan", "Whitney", "Madison", "Hunter", "Logan", "Casey", "Parker", "Spencer", "Taylor", "Charlie", "Sawyer" };
+string lastNames[] = { "Smith","Johnston","Rayn","Proops","Jameson","Erikson","Layn","Bigge","Ronaldo","Nuce","Forbe","Glasser","Rumble","Sailor","Faird","Levvy","Noy" };
+
+int GetIntInput(int min = -2147483647, int max = 2147483647); //Freddie Rive
+
 //-----Structs and Function Prototypes-----
 struct Date //Freddie Rive
 {
@@ -115,24 +121,16 @@ typedef struct ParentDetails {  // Any records starting with e are for emergency
 	{
 		if (index > 0)
 		{
-			cout << "Information for [arent " << index << " (" << firstName << " " << lastName << ")\n";
+			cout << "Information for parent " << index << " (" << firstName << " " << lastName << ")\n";
 		}
 		else
 		{
-			cout << "Information for teacher " << firstName << " " << lastName << endl;
+			cout << "Information for parent " << firstName << " " << lastName << endl;
 		}
-		cout << "Date of birth: " << dob.fullDate << "\Email Address: " << email << "\nContact Phone: " << contactNumber << "\n\nEmergenct Contact : " << eFirstName << " " << eLastName 
+		cout << "Date of birth: " << dob.fullDate << "\nEmail Address: " << email << "\nContact Phone: " << contactNumber << "\n\nEmergenct Contact : " << eFirstName << " " << eLastName 
 			<< "\nEmergenct Contact Phone Number: " << eContactNumber << endl << endl;
 	}
 } Parent;
-
-typedef struct StudentRecords { // Jamie - Placeholder Student Struct, just for testing. Work out a new one with Freddie.
-	string firstName;
-	string lastName;
-	vector<string> Classes;
-
-
-} Student;
 
 // CODE SECTION - End
 
@@ -218,7 +216,93 @@ struct Account
 	}
 };
 
-int GetIntInput(int min = -2147483647, int max = 2147483647); //Freddie Rive
+struct StudentRecord { // Jamie - Placeholder Student Struct, just for testing. Work out a new one with Freddie.
+	string firstName; // Could also put these two name strings together and seperate when necessary by splitting the string by space
+	string lastName;
+	string gender;
+	int studentScore[6] = { 0, 0, 0, 0, 0, 0 };
+	int year;
+
+	StudentRecord(string* str, int* i)
+	{
+		this->firstName = *str;
+		this->lastName = *(str + 1);
+		this->gender = *(str + 2);
+		this->studentScore[0] = *(i);
+		this->studentScore[1] = *(i + 1);
+		this->studentScore[2] = *(i + 2);
+		this->studentScore[3] = *(i + 3);
+		this->studentScore[4] = *(i + 4);
+		this->studentScore[5] = *(i + 5);
+		this->year = *(i + 6);
+	}
+
+	StudentRecord()
+	{
+		this->firstName = "NULL";
+	}
+
+	void WriteToFile()
+	{
+		ofstream file("data/students.csv", ios::out | ios::app);
+		file << this->firstName << "," << this->lastName << "," << this->gender << "," << this->studentScore[0] << "," << this->studentScore[1] << "," << this->studentScore[2] << ","
+			<< this->studentScore[3] << "," << this->studentScore[4] << "," << this->studentScore[5] << "," << this->year << "\n";
+		file.close();
+	}
+
+	void DisplayInfo(int index = 0)
+	{
+		if (index > 0)
+		{
+			cout << "Information for student " << index << " (" << firstName << " " << lastName << ")\n";
+		}
+		else
+		{
+			cout << "Information for student " << firstName << " " << lastName << endl;
+		}
+		cout << "Gender: " << gender << "\nYear: " << year << "\nMaths : " << studentScore[maths] << "\nScience : " << studentScore[science] << "\nEnglish : " << studentScore[english] <<
+			"\nSports : " << studentScore[sports] << "\nArts : " << studentScore[arts] << "\nOverall Behaviour : " << studentScore[behaviour] << endl;
+	}
+
+	void DisplayName()
+	{
+		cout << firstName << " " << lastName << endl;
+	}
+
+	void EditInfo()
+	{
+		int option;
+		cout << "1. First Name: " << firstName << "\n2. Last Name: " << lastName << "\n3. Gender: " << gender << "\n4. Year: " << year << "\n5. Maths : " << studentScore[maths] << "\n6. Science : " << studentScore[science] << "\n7.English : " << studentScore[english] <<
+			"\n8. Sports : " << studentScore[sports] << "\n9. Arts : " << studentScore[arts] << "\n\n10. Overall Behaviour : " << studentScore[behaviour] << endl;
+		cout << "\nPlease enter the index of the information you wish to change: ";
+		option = GetIntInput(1, 10);
+		cout << "\nPlease enter the new data: ";
+		switch (option)
+		{
+		case 1:
+			getline(cin, firstName);
+		case 2:
+			getline(cin, lastName);
+		case 3:
+			getline(cin, gender);
+		case 4:
+			year = GetIntInput(5, 13);
+		case 5:
+			studentScore[0] = GetIntInput(1, 4);
+		case 6:
+			studentScore[1] = GetIntInput(1, 4);
+		case 7:
+			studentScore[2] = GetIntInput(1, 4);
+		case 8:
+			studentScore[3] = GetIntInput(1, 4);
+		case 9:
+			studentScore[4] = GetIntInput(1, 4);
+		case 10:
+			studentScore[5] = GetIntInput(1, 4);
+		}
+	}
+};
+
 string GetNewPassword(); //Freddie Rive
 Account ParentAccountManagement(Account user);
 Account TeacherAccountManagement(Account user); //Freddie Rive
@@ -226,7 +310,9 @@ Account AdminManagement(Account user); //Freddie Rive
 void ParentFunctions();
 void TeacherFunctions();
 void AdminFunctions();
-int main();
+void DisplayStudent();
+void EditStudent();
+void DisplayAllStudents(int value = -1, string str = "");
 
 //-----------------------------------------
 
@@ -404,7 +490,7 @@ Account RegisterNewParent()
 
 	ofstream parentFile("data/parents.csv", ios::app);
 	parentFile << username << "," << password << "," << firstname << "," << lastname << "," << dob.fullDate << "," << email << "," << contactNumber << "," << eFirstName << ","
-	 << eLastName << "," << eContactNumber << "\n";
+		<< eLastName << "," << eContactNumber << "\n";
 	parentFile.close();
 
 	Parent parent = Parent(firstname, lastname, dob, email, contactNumber, eFirstName, eLastName, eContactNumber);
@@ -415,7 +501,7 @@ Account RegisterNewParent()
 
 Parent FetchParent(int index)
 {
-	ifstream parentFile("data/teachers.csv", ios::in);
+	ifstream parentFile("data/parents.csv", ios::in);
 
 	string username, password, firstname, lastname, dateString, email, contactNumber, eFirstName, eLastName, eContactNumber;
 	Date dob;
@@ -494,7 +580,7 @@ Account LogInAsParent()
 				cout << "\nYou have now logged in as " << parent.firstName << " " << parent.lastName << endl;
 				rtrn = Account(username, password, &parent);
 				Sleep(1500);
-				break;
+				return rtrn;
 			}
 			else
 			{
@@ -509,9 +595,38 @@ Account LogInAsParent()
 	catch (string error)
 	{
 		cout << endl << error << endl;
+		Sleep(1500);
 	}
 
 	return Account();
+}
+
+void FetchParents()
+{
+	ifstream parentFile("data/parents.csv", ios::in);
+	int index = 1;
+	while (parentFile.peek() != -1)
+	{
+		string username, password, firstName, lastName, dateString, email, contactNumber, eFirstName, eLastName, eContactNumber;
+		Date dob;
+
+		getline(parentFile, username, ',');
+		getline(parentFile, password, ',');
+		getline(parentFile, firstName, ',');
+		getline(parentFile, lastName, ',');
+		getline(parentFile, dateString, ',');
+		dob = Date(dateString);
+		getline(parentFile, email, ',');
+		getline(parentFile, contactNumber, ',');
+		getline(parentFile, eFirstName, ',');
+		getline(parentFile, eLastName, ',');
+		getline(parentFile, eContactNumber, ',');
+
+		Parent parent = Parent(firstName, lastName, dob, email, contactNumber, eFirstName, eLastName, eContactNumber);
+		parent.DisplayInfo(index);
+		index++;
+	}
+	parentFile.close();
 }
 
 Account ParentAccountManagement(Account user)
@@ -583,23 +698,15 @@ void ParentFunctions()
 		cout << "|     Emerald Hill High School Information System     |" << endl;
 		cout << "|           Parent Student Record Management          |" << endl;
 		cout << "-------------------------------------------------------" << endl;
-		cout << "\n1. View Student Record\n2. Edit student record\n3. View class report\n\n4. Return to main menu\n[Enter your option]: ";
-		option = GetIntInput(1, 5);
+		cout << "\n1. View Student Record\n\n2. Return to main menu\n[Enter your option]: ";
+		option = GetIntInput(1, 2);
 		switch (option)
 		{
 		case 1:
-			cout << "cant do this yet";
+			DisplayStudent();
 			Sleep(1500);
 			break;
 		case 2:
-			cout << "cant do this yet";
-			Sleep(1500);
-			break;
-		case 3:
-			cout << "cant do this yet";
-			Sleep(1500);
-			break;
-		case 4:
 			system("CLS");
 			return;
 		}
@@ -626,7 +733,7 @@ int GetIntInput(int min, int max) //default variables are declared with the func
 			}
 			else if (rtrn < min || rtrn > max)
 			{
-				throw string("Error: Input outside of acceptable range.");
+				throw "Error: Input outside of acceptable range.";
 			}
 			break;
 		}
@@ -634,7 +741,7 @@ int GetIntInput(int min, int max) //default variables are declared with the func
 		{
 			cin.clear();
 			cin.ignore(1000, '\n');
-			cout << error << " Try again: ";
+			cout << error << "Try again: ";
 		}
 	}
 	cin.ignore();
@@ -701,7 +808,7 @@ Account RegisterNewTeacher()
 	cout << "\nPlease enter the year you teach at our school: ";
 	yrTaught = GetIntInput(0, 13);
 	cout << "\nPlease enter your classroom number: ";
-	classNo = GetIntInput(0);
+	classNo = GetIntInput(0, 100);
 
 	ofstream teacherFile("data/teachers.csv", ios::app);
 
@@ -927,23 +1034,19 @@ void TeacherFunctions()
 		cout << "|     Emerald Hill High School Information System     |" << endl;
 		cout << "|          Teacher Student Record Management          |" << endl;
 		cout << "-------------------------------------------------------" << endl;
-		cout << "\n1. View Student Record\n2. Edit student record\n3. View class report\n\n4. Return to main menu\n[Enter your option]: ";
-		option = GetIntInput(1, 4);
+		cout << "\n1. View Student Record\n2. Edit Student Record\n\n3. Return to main menu\n[Enter your option]: ";
+		option = GetIntInput(1, 3);
 		switch (option)
 		{
 		case 1:
-			cout << "cant do this yet";
+			DisplayStudent();
 			Sleep(1500);
 			break;
 		case 2:
-			cout << "cant do this yet";
+			EditStudent();
 			Sleep(1500);
 			break;
 		case 3:
-			cout << "cant do this yet";
-			Sleep(1500);
-			break;
-		case 4:
 			system("CLS");
 			return;
 		}
@@ -978,6 +1081,9 @@ void ChangeAdminPassword()
 
 	adminFile2.close();
 
+	cout << "\nYou have changed the admin password to " << input;
+	Sleep(1500);
+
 	return;
 }
 
@@ -997,6 +1103,9 @@ Account LogInAsAdmin()
 		Sleep(1500);
 		return Account(login);
 	}
+
+	cout << "\nYour password was incorrect. You have not been logged in as the admin";
+	Sleep(1500);
 	return Account();
 }
 
@@ -1018,6 +1127,8 @@ Account AdminManagement(Account user)
 			{
 			case 1:
 				user = Account();
+				cout << "\nYou have now logged out";
+				Sleep(1500);
 				break;
 			case 2:
 				ChangeAdminPassword();
@@ -1057,6 +1168,8 @@ Account AdminManagement(Account user)
 	}
 }
 
+void GenerateStudents(int count);
+
 void AdminFunctions()
 {
 	while (true)
@@ -1067,26 +1180,389 @@ void AdminFunctions()
 		cout << "|     Emerald Hill High School Information System     |" << endl;
 		cout << "|            Admin School Record Management           |" << endl;
 		cout << "-------------------------------------------------------" << endl;
-		cout << "\n1. View Class Records\n2. View Parent Records\n3. Report of stuggling children\n4. Report of successful children\n\n5. Return to main menu\n\n[Enter your option]: ";
-		option = GetIntInput(1, 5);
+		cout << "\n1. View Student Records\n2. View Parent Records\n3. Report of stuggling children\n4. Report of successful children\n\n5. Return to main menu\n\n[Enter your option]: ";
+		option = GetIntInput(1, 6);
 		switch (option)
 		{
 		case 1:
-			cout << "waiting for the student records";
+			DisplayAllStudents();
 			break;
 		case 2:
-			cout << "ill do this in a sec";
+			FetchParents();
 			break;
 		case 3:
-			cout << "waiting for the student records";
+			DisplayAllStudents(1, "struggling");
 			break;
 		case 4:
-			cout << "waiting for the student records";
+			DisplayAllStudents(4, "excelling");
 			break;
 		case 5:
 			system("CLS");
 			return;
+		case 6:
+			GenerateStudents(50);
+			break;
 		}
+
+		string temp;
+		cout << "\nPlease enter 'continue' to continue: ";
+		getline(cin, temp);
 	}
 }
 
+//-------------------Student-Functions----------------------
+void GenerateStudents(int count)
+{
+	srand(count);
+	for (int i = 0; i < count; i++)
+	{
+		int ints[7];
+		string strings[3];
+		
+		strings[0] = firstNames[rand() % 20];
+		strings[1] = lastNames[rand() % 17];
+		strings[2] = (rand() % 2 == 1) ? "Female" : "Male";
+		ints[0] = rand() % 4 + 1;
+		ints[1] = rand() % 4 + 1;
+		ints[2] = rand() % 4 + 1;
+		ints[3] = rand() % 4 + 1;
+		ints[4] = rand() % 4 + 1;
+		ints[5] = rand() % 4 + 1;
+		ints[6] = rand() % 7 + 5;
+
+		StudentRecord student = StudentRecord(strings, ints);
+		student.WriteToFile();
+	}
+}
+
+StudentRecord FetchStudent(int index)
+{
+	ifstream studentFile("data/students.csv", ios::in);
+
+	int ints[7];
+	string strings[4];
+
+	try
+	{
+		for (int i = 0; i < index; i++)
+		{
+			getline(studentFile, strings[0], '\n');
+		}
+
+		if (studentFile.peek() == -1)
+		{
+			throw (string)"Your Student Number was not found in our records";
+		}
+		getline(studentFile, strings[0], ',');
+		getline(studentFile, strings[1], ',');
+		getline(studentFile, strings[2], ',');
+		getline(studentFile, strings[3], ',');
+		ints[0] = stoi(strings[3]);
+		getline(studentFile, strings[3], ',');
+		ints[1] = stoi(strings[3]);
+		getline(studentFile, strings[3], ',');
+		ints[2] = stoi(strings[3]);
+		getline(studentFile, strings[3], ',');
+		ints[3] = stoi(strings[3]);
+		getline(studentFile, strings[3], ',');
+		ints[4] = stoi(strings[3]);
+		getline(studentFile, strings[3], ',');
+		ints[5] = stoi(strings[3]);
+		getline(studentFile, strings[3], '\n');
+		ints[6] = stoi(strings[3]);
+
+		studentFile.close();
+		return StudentRecord(strings, ints);
+	}
+	catch (string error)
+	{
+		cout << error << endl;
+		Sleep(1500);
+		return StudentRecord();
+	}
+}
+
+StudentRecord GetStudentByName()
+{
+	string fn, ln;
+	int index = 0;
+
+	ifstream studentFile("data/students", ios::in);
+
+	cout << "\nPlease enter the students first name: ";
+	getline(cin, fn);
+	cout << "\nPlease enter the students last name: ";
+	getline(cin, ln);
+	cout << "\n\nSearching for student " << fn << " " << ln;
+	while (studentFile.peek() != -1)
+	{
+		string f1, f2;
+		getline(studentFile, f1, ',');
+		if (fn == f1)
+		{
+			cout << ". ";
+			getline(studentFile, f2, ',');
+			if (ln == f2)
+			{
+				return FetchStudent(index);
+			}
+		}
+		getline(studentFile, f1, '\n');
+		index++;
+	}
+
+	cout << "\nYour name was not found in our records";
+	Sleep(1500);
+	return StudentRecord();
+}
+
+void DisplayStudent()
+{
+	int choice;
+	cout << "\n\nWould you rather find a student by\n1. Name(doesnt work yet)\n2. Student number\n[Enter your option]: ";
+	choice = GetIntInput(1, 2);
+	StudentRecord student;
+	switch (choice)
+	{
+	case 1:
+		student = GetStudentByName();
+		break;
+	case 2:
+		int index;
+		cout << "\n\nPlease enter the Student Number of the student you wish to view: ";
+		index = GetIntInput(1);
+		student = FetchStudent(index - 1);
+		break;
+	}
+
+	if (student.firstName == "NULL")
+	{
+		return;
+	}
+	student.DisplayInfo();
+	Sleep(4000);
+}
+
+void EditStudent()
+{
+	int input, index = 0;
+	vector<StudentRecord> students;
+	cout << "\n\nPlease enter the Student Number of the student you wish to edit: ";
+	input = GetIntInput(1);
+
+	ifstream readFile("data/students.csv");
+
+	while (readFile.peek() == -1)
+	{
+		int ints[7];
+		string strings[4];
+
+		getline(readFile, strings[0], ',');
+		getline(readFile, strings[1], ',');
+		getline(readFile, strings[2], ',');
+		getline(readFile, strings[3], ',');
+		ints[0] = stoi(strings[3]);
+		getline(readFile, strings[3], ',');
+		ints[1] = stoi(strings[3]);
+		getline(readFile, strings[3], ',');
+		ints[2] = stoi(strings[3]);
+		getline(readFile, strings[3], ',');
+		ints[3] = stoi(strings[3]);
+		getline(readFile, strings[3], ',');
+		ints[4] = stoi(strings[3]);
+		getline(readFile, strings[3], ',');
+		ints[5] = stoi(strings[3]);
+		getline(readFile, strings[3], '\n');
+		ints[6] = stoi(strings[3]);
+
+		StudentRecord student = StudentRecord(strings, ints);
+
+		if (index == input)
+		{
+			student.EditInfo();
+		}
+
+		students.push_back(student);
+
+		index++;
+	}
+
+	readFile.close();
+
+	ofstream writeFile("data/students.csv", ios::trunc);
+	writeFile.close();
+
+	for (StudentRecord student : students)
+	{
+		student.WriteToFile();
+	}
+}
+
+void DisplayAllStudents(int value, string str)
+{
+	int index = 0;
+
+	ifstream readFile("data/students.csv", ios::in);
+	if (value == -1)
+	{
+		while (readFile.peek() != -1)
+		{
+			int ints[7];
+			string strings[4];
+
+			getline(readFile, strings[0], ',');
+			getline(readFile, strings[1], ',');
+			getline(readFile, strings[2], ',');
+			getline(readFile, strings[3], ',');
+			ints[0] = stoi(strings[3]);
+			getline(readFile, strings[3], ',');
+			ints[1] = stoi(strings[3]);
+			getline(readFile, strings[3], ',');
+			ints[2] = stoi(strings[3]);
+			getline(readFile, strings[3], ',');
+			ints[3] = stoi(strings[3]);
+			getline(readFile, strings[3], ',');
+			ints[4] = stoi(strings[3]);
+			getline(readFile, strings[3], ',');
+			ints[5] = stoi(strings[3]);
+			getline(readFile, strings[3], '\n');
+			ints[6] = stoi(strings[3]);
+
+			StudentRecord student = StudentRecord(strings, ints);
+			student.DisplayInfo(index);
+			cout << endl;
+		}
+	}
+	else
+	{
+		int ints[7];
+		string strings[4];
+		vector<StudentRecord> mathsVec, scienceVec, englishVec, sportsVec, artVec, behaviourVec;
+
+		while (readFile.peek() != -1)
+		{
+			int ints[7];
+			string strings[4];
+
+			getline(readFile, strings[0], ',');
+			getline(readFile, strings[1], ',');
+			getline(readFile, strings[2], ',');
+			getline(readFile, strings[3], ',');
+			ints[0] = stoi(strings[3]);
+			getline(readFile, strings[3], ',');
+			ints[1] = stoi(strings[3]);
+			getline(readFile, strings[3], ',');
+			ints[2] = stoi(strings[3]);
+			getline(readFile, strings[3], ',');
+			ints[3] = stoi(strings[3]);
+			getline(readFile, strings[3], ',');
+			ints[4] = stoi(strings[3]);
+			getline(readFile, strings[3], ',');
+			ints[5] = stoi(strings[3]);
+			getline(readFile, strings[3], '\n');
+			ints[6] = stoi(strings[3]);
+
+			StudentRecord student = StudentRecord(strings, ints);
+
+			if (student.studentScore[maths] == value)
+			{
+				mathsVec.push_back(student);
+			}
+			if (student.studentScore[science] == value)
+			{
+				scienceVec.push_back(student);
+			}
+			if (student.studentScore[english] == value)
+			{
+				englishVec.push_back(student);
+			}
+			if (student.studentScore[sports] == value)
+			{
+				sportsVec.push_back(student);
+			}
+			if (student.studentScore[arts] == value)
+			{
+				artVec.push_back(student);
+			}
+			if (student.studentScore[behaviour] == value)
+			{
+				behaviourVec.push_back(student);
+			}
+		}
+
+		if (mathsVec.size() > 0)
+		{
+			cout << "\n-----------------------\nStudents who are " << str << " at maths\n-----------------------\n";
+			for (StudentRecord student : mathsVec)
+			{
+				student.DisplayName();
+			}
+		}
+		else
+		{
+			cout << "\n-----------------------\nThere are currently no students who are " << str << " at maths\n-----------------------";
+		}
+		if (scienceVec.size() > 0)
+		{
+			cout << "\n-----------------------\nStudents who are " << str << " at science\n-----------------------\n";
+			for (StudentRecord student : scienceVec)
+			{
+				student.DisplayName();
+			}
+		}
+		else
+		{
+			cout << "\n-----------------------\nThere are currently no students who are " << str << " at science\n-----------------------";
+		}
+		if (englishVec.size() > 0)
+		{
+			cout << "\n-----------------------\nStudents who are " << str << " at english\n-----------------------\n";
+			for (StudentRecord student : englishVec)
+			{
+				student.DisplayName();
+			}
+		}
+		else
+		{
+			cout << "\n-----------------------\nThere are currently no students who are " << str << " at english\n-----------------------";
+		}
+		if (sportsVec.size() > 0)
+		{
+			cout << "\n-----------------------\nStudents who are " << str << " at sports\n-----------------------\n";
+			for (StudentRecord student : sportsVec)
+			{
+				student.DisplayName();
+			}
+		}
+		else
+		{
+			cout << "\n-----------------------\nThere are currently no students who are " << str << " at sports\n-----------------------";
+		}
+		if (artVec.size() > 0)
+		{
+			cout << "\n-----------------------\nStudents who are " << str << " in the arts\n-----------------------\n";
+			for (StudentRecord student : artVec)
+			{
+				student.DisplayName();
+			}
+		}
+		else
+		{
+			cout << "\n-----------------------\nThere are currently no students who are " << str << " in the arts\n-----------------------";
+		}
+		if (behaviourVec.size() > 0)
+		{
+			cout << "\n-----------------------\nStudents who are " << str << " with their behaviour\n-----------------------\n";
+			for (StudentRecord student : behaviourVec)
+			{
+				student.DisplayName();
+			}
+		}
+		else
+		{
+			cout << "\n-----------------------\nThere are currently no students who are " << str << " with their behaviour\n-----------------------";
+		}
+	}
+
+	readFile.close();
+}
