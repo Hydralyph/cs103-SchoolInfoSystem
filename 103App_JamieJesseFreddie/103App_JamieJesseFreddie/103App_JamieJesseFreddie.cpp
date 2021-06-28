@@ -281,24 +281,34 @@ struct StudentRecord { // Jamie - Placeholder Student Struct, just for testing. 
 		{
 		case 1:
 			getline(cin, firstName);
+			break;
 		case 2:
 			getline(cin, lastName);
+			break;
 		case 3:
 			getline(cin, gender);
+			break;
 		case 4:
 			year = GetIntInput(5, 13);
+			break;
 		case 5:
 			studentScore[0] = GetIntInput(1, 4);
+			break;
 		case 6:
 			studentScore[1] = GetIntInput(1, 4);
+			break;
 		case 7:
 			studentScore[2] = GetIntInput(1, 4);
+			break;
 		case 8:
 			studentScore[3] = GetIntInput(1, 4);
+			break;
 		case 9:
 			studentScore[4] = GetIntInput(1, 4);
+			break;
 		case 10:
 			studentScore[5] = GetIntInput(1, 4);
+			break;
 		}
 	}
 };
@@ -1362,8 +1372,14 @@ void EditStudent()
 		break;
 	case 2:
 		cout << "\n\nPlease enter the Student Number of the student you wish to edit: ";
-		input = GetIntInput(1);
-		student = FetchStudent(index - 1);
+		input = GetIntInput(1) - 1;
+		StudentRecord student = FetchStudent(input);
+		if (student.firstName == "NULL")
+		{
+			cout << "\nYour student was not found in our records.";
+			Sleep(1500);
+			return;
+		}
 		break;
 	}
 
@@ -1413,6 +1429,8 @@ void EditStudent()
 	{
 		student.WriteToFile();
 	}
+
+	cout << "\nYou have successfully edited the students record";
 }
 
 void DisplayAllStudents(int value, string str)
