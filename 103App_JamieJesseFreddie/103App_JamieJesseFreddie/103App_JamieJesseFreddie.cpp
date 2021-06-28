@@ -733,7 +733,7 @@ int GetIntInput(int min, int max) //default variables are declared with the func
 			}
 			else if (rtrn < min || rtrn > max)
 			{
-				throw "Error: Input outside of acceptable range.";
+				throw string("Error: Input outside of acceptable range.");
 			}
 			break;
 		}
@@ -1204,9 +1204,9 @@ void AdminFunctions()
 			break;
 		}
 
+		cout << "\nPress enter to continue... ";
 		string temp;
-		cout << "\nPlease enter 'continue' to continue: ";
-		getline(cin, temp);
+		getline(cin, temp, '\n');
 	}
 }
 
@@ -1282,12 +1282,12 @@ StudentRecord FetchStudent(int index)
 	}
 }
 
-StudentRecord GetStudentByName()
+StudentRecord GetStudentByName(int* rtrn = nullptr)
 {
 	string fn, ln;
 	int index = 0;
 
-	ifstream studentFile("data/students", ios::in);
+	ifstream studentFile("data/students.csv", ios::in);
 
 	cout << "\nPlease enter the students first name: ";
 	getline(cin, fn);
@@ -1304,6 +1304,8 @@ StudentRecord GetStudentByName()
 			getline(studentFile, f2, ',');
 			if (ln == f2)
 			{
+				cout << endl << endl;
+				*rtrn = index;
 				return FetchStudent(index);
 			}
 		}
@@ -1319,7 +1321,7 @@ StudentRecord GetStudentByName()
 void DisplayStudent()
 {
 	int choice;
-	cout << "\n\nWould you rather find a student by\n1. Name(doesnt work yet)\n2. Student number\n[Enter your option]: ";
+	cout << "\n\nWould you rather find a student by\n1. Name\n2. Student number\n[Enter your option]: ";
 	choice = GetIntInput(1, 2);
 	StudentRecord student;
 	switch (choice)
@@ -1340,19 +1342,34 @@ void DisplayStudent()
 		return;
 	}
 	student.DisplayInfo();
-	Sleep(4000);
+	cout << "Press enter to continue... ";
+	string temp;
+	getline(cin, temp, '\n');
 }
 
 void EditStudent()
 {
-	int input, index = 0;
+	int input = 0, index = 0;
 	vector<StudentRecord> students;
-	cout << "\n\nPlease enter the Student Number of the student you wish to edit: ";
-	input = GetIntInput(1);
+	int choice;
+	cout << "\n\nWould you rather find a student by\n1. Name\n2. Student number\n[Enter your option]: ";
+	choice = GetIntInput(1, 2);
+	StudentRecord student;
+	switch (choice)
+	{
+	case 1:
+		student = GetStudentByName(&input);
+		break;
+	case 2:
+		cout << "\n\nPlease enter the Student Number of the student you wish to edit: ";
+		input = GetIntInput(1);
+		student = FetchStudent(index - 1);
+		break;
+	}
 
 	ifstream readFile("data/students.csv");
 
-	while (readFile.peek() == -1)
+	while (readFile.peek() != -1)
 	{
 		int ints[7];
 		string strings[4];
