@@ -281,24 +281,34 @@ struct StudentRecord { // Jamie - Placeholder Student Struct, just for testing. 
 		{
 		case 1:
 			getline(cin, firstName);
+			break;
 		case 2:
 			getline(cin, lastName);
+			break;
 		case 3:
 			getline(cin, gender);
+			break;
 		case 4:
 			year = GetIntInput(5, 13);
+			break;
 		case 5:
 			studentScore[0] = GetIntInput(1, 4);
+			break;
 		case 6:
 			studentScore[1] = GetIntInput(1, 4);
+			break;
 		case 7:
 			studentScore[2] = GetIntInput(1, 4);
+			break;
 		case 8:
 			studentScore[3] = GetIntInput(1, 4);
+			break;
 		case 9:
 			studentScore[4] = GetIntInput(1, 4);
+			break;
 		case 10:
 			studentScore[5] = GetIntInput(1, 4);
+			break;
 		}
 	}
 };
@@ -327,6 +337,7 @@ int main()
 
 	// Operates while the User has not exited. Not final, and is subject to change based on other functions/screens.
 	do {
+		system("CLS");
 		// Output menu
 		string accountSettings = (user.accessLevel == defaultUser) ? "Log In / Register" : "Log Out";
 		cout << "-------------------------------------------------------" << endl;
@@ -336,7 +347,7 @@ int main()
 		cout << "\n2. Events";
 		cout << "\n3. Term Dates";
 		cout << "\n4. " << accountSettings;
-		cout << "\n5. View/Edit Records\n";
+		cout << "\n5. Record Manipulation\n";
 		cout << "\n6. Exit" << endl;
 		cout << "\n[Enter your option:] ";
 
@@ -349,31 +360,37 @@ int main()
 		// Sleep only works on windows at this time.
 		switch (option) {
 		case 1:
-			inputDetails.open("contactDetails.txt", ios::in);
+			system("CLS");
+			inputDetails.open("data/contactDetails.txt", ios::in);
 			while (getline(inputDetails, str)) {
 				cout << str << endl;
 			}
 			cout << "\n";
 			inputDetails.close();
-			Sleep(1500);
+			cout << "\nPress Enter to return to Menu...";
+			cin.ignore();
 			break;
 		case 2:
-			inputDetails.open("eventDetails.txt", ios::in);
+			system("CLS");
+			inputDetails.open("data/eventDetails.txt", ios::in);
 			while (getline(inputDetails, str)) {
 				cout << str << endl;
 			}
 			cout << "\n";
 			inputDetails.close();
-			Sleep(1500);
+			cout << "\nPress Enter to return to Menu...";
+			cin.ignore();
 			break;
 		case 3:
-			inputDetails.open("termDetails.txt", ios::in);
+			system("CLS");
+			inputDetails.open("data/termDetails.txt", ios::in);
 			while (getline(inputDetails, str)) {
 				cout << str << endl;
 			}
 			cout << "\n";
 			inputDetails.close();
-			Sleep(1500);
+			cout << "\nPress Enter to return to Menu...";
+			cin.ignore();
 			break;
 		case 4:
 			switch (user.accessLevel)
@@ -1362,8 +1379,14 @@ void EditStudent()
 		break;
 	case 2:
 		cout << "\n\nPlease enter the Student Number of the student you wish to edit: ";
-		input = GetIntInput(1);
-		student = FetchStudent(index - 1);
+		input = GetIntInput(1) - 1;
+		StudentRecord student = FetchStudent(input);
+		if (student.firstName == "NULL")
+		{
+			cout << "\nYour student was not found in our records.";
+			Sleep(1500);
+			return;
+		}
 		break;
 	}
 
@@ -1413,6 +1436,8 @@ void EditStudent()
 	{
 		student.WriteToFile();
 	}
+
+	cout << "\nYou have successfully edited the students record";
 }
 
 void DisplayAllStudents(int value, string str)
