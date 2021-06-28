@@ -1,0 +1,4 @@
+﻿  103App_JamieJesseFreddie.cpp
+D:\SCHOOL\Yoobee\CS103 - Integrated Studio\GroupProj - SIS\cs103-SchoolInfoSystem\103App_JamieJesseFreddie\103App_JamieJesseFreddie\103App_JamieJesseFreddie.cpp(851,12): warning C4101: 'contactNo': unreferenced local variable
+D:\SCHOOL\Yoobee\CS103 - Integrated Studio\GroupProj - SIS\cs103-SchoolInfoSystem\103App_JamieJesseFreddie\103App_JamieJesseFreddie\103App_JamieJesseFreddie.cpp(1480,7): warning C4101: 'ints': unreferenced local variable
+  103App_JamieJesseFreddie.vcxproj -> D:\SCHOOL\Yoobee\CS103 - Integrated Studio\GroupProj - SIS\cs103-SchoolInfoSystem\103App_JamieJesseFreddie\Debug\103App_JamieJesseFreddie.exe

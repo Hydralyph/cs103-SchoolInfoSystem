@@ -1,0 +1,19 @@
+-------------------------------------------------------
+|         Emerald Hill High School Term Dates         |
+-------------------------------------------------------
+
+[Term 1]
+Starting Date: 02/02/21
+Ending Date: 09/04/21
+
+[Term 2]
+Starting Date: 26/04/21
+Ending Date: 09/07/21
+
+[Term 3]
+Starting Date: 26/07/21
+Ending Date: 01/10/21
+
+[Term 4]
+Starting Date: 18/10/21
+Ending Date: 17/12/21
